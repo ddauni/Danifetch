@@ -11,7 +11,7 @@ ${pink}
             ..:=*%%%#+-..
            ..=@@*==+%@@#..
      .....  .........*@@-..
-    .:%@*...      ...+@@-..
+    .:%@*...	 ...+@@-..
     .:@@#:.. ......:+@@+...
     ....... ..:%@@@@@#-...
             ....:::-=%@@=..
@@ -32,20 +32,30 @@ else
     os=$(uname -o)
 fi
 
-# Package Managers
-if command -v pacman &> /dev/null; then
+# Enhanced Package Managers
+if command -v pacman &>/dev/null; then
     package_count=$(pacman -Q | wc -l)
     package_source="pacman (AUR included)"
-elif command -v apt &> /dev/null; then
-    package_count=$(dpkg --get-selections | wc -l)
-    package_source="APT"
-elif command -v xbps-query &> /dev/null; then
+    elif command -v xbps-query &>/dev/null; then
     package_count=$(xbps-query -l | wc -l)
     package_source="XBPS"
-elif command -v emerge &> /dev/null; then
+elif command -v emerge &>/dev/null; then
     package_count=$(qlist -I | wc -l)
     package_source="Portage"
+elif command -v apk &>/dev/null; then
+    package_count=$(apk info | wc -l)
+    package_source="apk (Alpine Linux)"
+elif command -v zypper &>/dev/null; then
+    package_count=$(zypper se --installed-only | wc -l)
+    package_source="zypper"
+elif command -v apt &>/dev/null; then
+    package_count=$(dpkg-query -f '.\n' -W | wc -l)
+    package_source="APT"
+elif command -v rpm &>/dev/null && command -v dnf &>/dev/null; then
+    package_count=$(dnf list installed | wc -l)
+    package_source="dnf (Fedora/RHEL)"
 else
+    package_count="N/A"
     package_source="Unknown"
 fi
 
@@ -54,9 +64,38 @@ kernel=$(uname -r)
 uptime="Up for $(uptime -p | sed 's/^up //')"
 user=$USER
 host=$(hostname 2>/dev/null || echo "Hostname not found")
-de=${XDG_CURRENT_DESKTOP:-"N/A"}
+fi
+
+# System Info
+kernel=$(uname -r)
+uptime="Up for $(uptime -p | sed 's/^up //')"
+user=$USER
+host=$(hostname 2>/dev/null || echo "Hostname not found")
 memory=$(free -h --si | awk '/^Mem:/ {print $3 "/" $2}')
 disk_usage=$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')
+
+# WM Detection
+if command -v sway &>/dev/null; then
+    wm="Sway"
+elif command -v i3 &>/dev/null; then
+    wm="i3"
+elif command -v bspwm &>/dev/null; then
+    wm="bspwm"
+elif command -v river &>/dev/null; then
+    wm="River"
+elif command -v awesome &>/dev/null; then
+    wm="Awesome"
+elif command -v herbstluftwm &>/dev/null; then
+    wm="herbstluftwm"
+elif command -v hyprland &>/dev/null; then
+    wm="Hyprland"
+elif command -v xmonad &>/dev/null; then
+    wm="xmonad"
+elif command -v dwm &>/dev/null; then
+    wm="dwm"
+else
+    wm="N/A"
+fi
 
 # Quotes Aleatorias
 quotes=("Did you know? Each time you use \"danifetch\" a little dani smiles!! :D"
@@ -80,7 +119,7 @@ echo -e "${pink}OS:${reset} ${white}${os}${reset}"
 echo -e "${pink}Kernel:${reset} ${white}${kernel}${reset}"
 echo -e "${pink}Uptime:${reset} ${white}${uptime}${reset}"
 echo -e "${pink}Host:${reset} ${white}${host}${reset}"
-echo -e "${pink}DE/WM:${reset} ${white}${de}${reset}"
+echo -e "${pink}DE/WM:${reset} ${white}${de}${wm}${reset}"
 echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
 echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
 echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
