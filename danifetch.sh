@@ -36,7 +36,7 @@ fi
 if command -v pacman &>/dev/null; then
     package_count=$(pacman -Q | wc -l)
     package_source="pacman (AUR included)"
-    elif command -v xbps-query &>/dev/null; then
+elif command -v xbps-query &>/dev/null; then
     package_count=$(xbps-query -l | wc -l)
     package_source="XBPS"
 elif command -v emerge &>/dev/null; then
@@ -57,13 +57,6 @@ elif command -v rpm &>/dev/null && command -v dnf &>/dev/null; then
 else
     package_count="N/A"
     package_source="Unknown"
-fi
-
-# System Info
-kernel=$(uname -r)
-uptime="Up for $(uptime -p | sed 's/^up //')"
-user=$USER
-host=$(hostname 2>/dev/null || echo "Hostname not found")
 fi
 
 # System Info
@@ -119,7 +112,7 @@ echo -e "${pink}OS:${reset} ${white}${os}${reset}"
 echo -e "${pink}Kernel:${reset} ${white}${kernel}${reset}"
 echo -e "${pink}Uptime:${reset} ${white}${uptime}${reset}"
 echo -e "${pink}Host:${reset} ${white}${host}${reset}"
-echo -e "${pink}DE/WM:${reset} ${white}${de}${wm}${reset}"
+echo -e "${pink}DE/WM:${reset} ${white}${wm}${reset}"
 echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
 echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
 echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
