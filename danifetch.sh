@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Cores
+# Colors
 pink="\e[35m"
 white="\e[97m"
 reset="\e[0m"
 
-# ASCII
+# ASCII Art
 ascii_art="""
 ${pink}
             ..:=*%%%#+-..
@@ -24,7 +24,7 @@ ${pink}
 ${reset}
 """
 
-# OS
+# OS Detection
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     os=${NAME}
@@ -67,6 +67,15 @@ host=$(hostname 2>/dev/null || echo "Hostname not found")
 memory=$(free -h --si | awk '/^Mem:/ {print $3 "/" $2}')
 disk_usage=$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')
 
+# DE Detection
+if [ "$XDG_CURRENT_DESKTOP" ]; then
+    de=$XDG_CURRENT_DESKTOP
+elif [ "$DESKTOP_SESSION" ]; then
+    de=$DESKTOP_SESSION
+else
+    de="N/A"
+fi
+
 # WM Detection
 if command -v sway &>/dev/null; then
     wm="Sway"
@@ -86,11 +95,15 @@ elif command -v xmonad &>/dev/null; then
     wm="xmonad"
 elif command -v dwm &>/dev/null; then
     wm="dwm"
+elif command -v openbox &>/dev/null; then
+    wm="Openbox"
+elif command -v icewm &>/dev/null; then
+    wm="IceWM"
 else
     wm="N/A"
 fi
 
-# Quotes Aleatorias
+# Quotes
 quotes=("Did you know? Each time you use \"danifetch\" a little dani smiles!! :D"
         "I forgor :<"
         "Haiii my name dani,,,, me,,, im dani,, that's me haii :3"
@@ -104,7 +117,7 @@ quotes=("Did you know? Each time you use \"danifetch\" a little dani smiles!! :D
         "danifetch is so cool -dani")
 random_quote=${quotes[$((RANDOM % ${#quotes[@]}))]}
 
-# Info wowie!!
+# Info Output
 echo -e "${ascii_art}"
 echo -e "Welcome, ${pink}${user}${reset}, to the many funiii ${pink}danifetch${reset} awawa!! :3"
 echo -e ""
@@ -112,7 +125,8 @@ echo -e "${pink}OS:${reset} ${white}${os}${reset}"
 echo -e "${pink}Kernel:${reset} ${white}${kernel}${reset}"
 echo -e "${pink}Uptime:${reset} ${white}${uptime}${reset}"
 echo -e "${pink}Host:${reset} ${white}${host}${reset}"
-echo -e "${pink}DE/WM:${reset} ${white}${wm}${reset}"
+echo -e "${pink}DE:${reset} ${white}${de}${reset}"
+echo -e "${pink}WM:${reset} ${white}${wm}${reset}"
 echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
 echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
 echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
