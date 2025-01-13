@@ -58,6 +58,10 @@ else
     package_count="N/A"
     package_source="Unknown"
 fi
+if command -v flatpak &>/dev/null; then
+    flatpaks_count=$(flatpak list --system | wc -l)
+    flatpaku_count=$(flatpak list -u | wc -l)
+fi
 
 # System Info
 kernel=$(uname -r)
@@ -81,6 +85,10 @@ if command -v sway &>/dev/null; then
     wm="Sway"
 elif command -v i3 &>/dev/null; then
     wm="i3"
+elif command -v kwin &>/dev/null; then
+    wm="KWin"
+elif command -v xfwm &>/dev/null; then
+    wm="Xfwm"
 elif command -v bspwm &>/dev/null; then
     wm="bspwm"
 elif command -v river &>/dev/null; then
@@ -99,6 +107,8 @@ elif command -v openbox &>/dev/null; then
     wm="Openbox"
 elif command -v icewm &>/dev/null; then
     wm="IceWM"
+elif command -v twm &>/dev/null; then
+    wm="TWM"
 else
     wm="N/A"
 fi
@@ -129,6 +139,7 @@ echo -e "${pink}DE:${reset} ${white}${de}${reset}"
 echo -e "${pink}WM:${reset} ${white}${wm}${reset}"
 echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
 echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
+echo -e "${pink}Flatpak packages:${reset} ${white}${flatpaks_count} (system) ${flatpaku_count} (user)${reset}"
 echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
 echo -e "${pink}Funi random quote:${reset} ${white}${random_quote}${reset}"
 echo -e ""
