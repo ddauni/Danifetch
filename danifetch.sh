@@ -59,8 +59,9 @@ else
     package_source="Unknown"
 fi
 if command -v flatpak &>/dev/null; then
-    flatpaks_count=$(flatpak list --system | wc -l)
-    flatpaku_count=$(flatpak list -u | wc -l)
+    flatpaks_count=$(flatpak list --system | wc -l)" (system)"
+    flatpaku_count=$(flatpak list -u | wc -l)" (user)"
+else flatpaks_count="flatpak not installed"
 fi
 
 # System Info
@@ -81,7 +82,9 @@ else
 fi
 
 # WM Detection
-if command -v sway &>/dev/null; then
+if command -v wmctrl &>/dev/null; then
+    wm=$(wmctrl -m | grep -oP '(?<=Name: ).*')
+elif command -v sway &>/dev/null; then
     wm="Sway"
 elif command -v i3 &>/dev/null; then
     wm="i3"
@@ -139,7 +142,7 @@ echo -e "${pink}DE:${reset} ${white}${de}${reset}"
 echo -e "${pink}WM:${reset} ${white}${wm}${reset}"
 echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
 echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
-echo -e "${pink}Flatpak packages:${reset} ${white}${flatpaks_count} (system) ${flatpaku_count} (user)${reset}"
+echo -e "${pink}Flatpak packages:${reset} ${white}${flatpaks_count} ${flatpaku_count} ${reset}"
 echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
 echo -e "${pink}Funi random quote:${reset} ${white}${random_quote}${reset}"
 echo -e ""
