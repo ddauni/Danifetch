@@ -106,6 +106,8 @@ elif command -v xmonad &>/dev/null; then
     wm="xmonad"
 elif command -v dwm &>/dev/null; then
     wm="dwm"
+elif command -v dwl &>/dev/null; then
+    wm="dwl"
 elif command -v openbox &>/dev/null; then
     wm="Openbox"
 elif command -v icewm &>/dev/null; then
