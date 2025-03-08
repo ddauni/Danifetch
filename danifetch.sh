@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -euo pipefail
+IFS=$'\n\t'
+
 # Colors
 pink="\e[35m"
 white="\e[97m"
@@ -26,97 +29,69 @@ ${reset}
 
 # OS Detection
 if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    os=${NAME}
+    . "/etc/os-release"
+    os="${NAME}"
 else
-    os=$(uname -o)
+    os="$(uname -o)"
 fi
 
 # Enhanced Package Managers
 if command -v pacman &>/dev/null; then
-    package_count=$(pacman -Q | wc -l)
+    package_count="$(pacman -Q | wc -l)"
     package_source="pacman (AUR included)"
 elif command -v xbps-query &>/dev/null; then
-    package_count=$(xbps-query -l | wc -l)
+    package_count="$(xbps-query -l | wc -l)"
     package_source="XBPS"
 elif command -v emerge &>/dev/null; then
-    package_count=$(qlist -I | wc -l)
+    package_count="$(qlist -I | wc -l)"
     package_source="Portage"
 elif command -v apk &>/dev/null; then
-    package_count=$(apk info | wc -l)
+    package_count="$(apk info | wc -l)"
     package_source="apk (Alpine Linux)"
 elif command -v zypper &>/dev/null; then
-    package_count=$(zypper se --installed-only | wc -l)
+    package_count="$(zypper se --installed-only | wc -)"
     package_source="zypper"
 elif command -v apt &>/dev/null; then
-    package_count=$(dpkg-query -f '.\n' -W | wc -l)
+    package_count="$(dpkg-query -f '.\n' -W | wc -l)"
     package_source="APT"
 elif command -v rpm &>/dev/null && command -v dnf &>/dev/null; then
-    package_count=$(dnf list installed | wc -l)
+    package_count="$(dnf list installed | wc -l)"
     package_source="dnf (Fedora/RHEL)"
 else
-    package_count="N/A"
-    package_source="Unknown"
+    package_count=""
+    package_source=""
 fi
+
 if command -v flatpak &>/dev/null; then
-    flatpaks_count=$(flatpak list --system | wc -l)" (system)"
-    flatpaku_count=$(flatpak list -u | wc -l)" (user)"
-else flatpaks_count="flatpak not installed"
+    flatpaks_count="$(flatpak list --system | wc -l)\" (system)\""
+    flatpaku_count="$(flatpak list -u | wc -l)\" (user)\""
+else
+    flatpaks_count=""
+    flatpaku_count=""
 fi
 
 # System Info
-kernel=$(uname -r)
-uptime="Up for $(uptime -p | sed 's/^up //')"
-user=$USER
-host=$(hostname 2>/dev/null || echo "Hostname not found")
-memory=$(free -h --si | awk '/^Mem:/ {print $3 "/" $2}')
-disk_usage=$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')
+kernel="$(uname -r)"
+user="$USER"
+host="$(hostname 2>/dev/null || echo "Hostname not found")"
+memory="$(LANG="C.UTF-8" free -h --si | awk '/^Mem:/ {print $3 "/" $2}')"
+disk_usage="$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')"
+uptime="Up for $(awk '{printf "%02d:%02d:%02d", int(int($1 / 60) / 60), int($1 / 60) % 60, int($1 % 60)}') < /proc/uptime"
 
-# DE Detection
-if [ "$XDG_CURRENT_DESKTOP" ]; then
-    de=$XDG_CURRENT_DESKTOP
-elif [ "$DESKTOP_SESSION" ]; then
-    de=$DESKTOP_SESSION
-else
-    de="N/A"
-fi
-
-# WM Detection
-if command -v wmctrl &>/dev/null; then
-    wm=$(wmctrl -m | grep -oP '(?<=Name: ).*')
-elif command -v sway &>/dev/null; then
-    wm="Sway"
-elif command -v i3 &>/dev/null; then
-    wm="i3"
-elif command -v kwin &>/dev/null; then
-    wm="KWin"
-elif command -v xfwm &>/dev/null; then
-    wm="Xfwm"
-elif command -v bspwm &>/dev/null; then
-    wm="bspwm"
-elif command -v river &>/dev/null; then
-    wm="River"
-elif command -v awesome &>/dev/null; then
-    wm="Awesome"
-elif command -v herbstluftwm &>/dev/null; then
-    wm="herbstluftwm"
-elif command -v hyprland &>/dev/null; then
-    wm="Hyprland"
-elif command -v xmonad &>/dev/null; then
-    wm="xmonad"
-elif command -v dwm &>/dev/null; then
-    wm="dwm"
-elif command -v dwl &>/dev/null; then
-    wm="dwl"
-elif command -v openbox &>/dev/null; then
-    wm="Openbox"
-elif command -v icewm &>/dev/null; then
-    wm="IceWM"
-elif command -v twm &>/dev/null; then
-    wm="TWM"
-else
-    wm="N/A"
-fi
+wm="$XDG_SESSION_DESKTOP"
+case "$wm" in
+    "gnome")
+	de="GNOME"
+	wm="Mutter"
+	;;
+    "KDE")
+	de="KDE"
+	wm="Kwin"
+	;;
+    *)
+	de=""
+	;;
+esac
 
 # Quotes
 quotes=("Did you know? Each time you use \"danifetch\" a little dani smiles!! :D"
@@ -136,15 +111,14 @@ random_quote=${quotes[$((RANDOM % ${#quotes[@]}))]}
 echo -e "${ascii_art}"
 echo -e "Welcome, ${pink}${user}${reset}, to the many funiii ${pink}danifetch${reset} awawa!! :3"
 echo -e ""
-echo -e "${pink}OS:${reset} ${white}${os}${reset}"
-echo -e "${pink}Kernel:${reset} ${white}${kernel}${reset}"
-echo -e "${pink}Uptime:${reset} ${white}${uptime}${reset}"
-echo -e "${pink}Host:${reset} ${white}${host}${reset}"
-echo -e "${pink}DE:${reset} ${white}${de}${reset}"
-echo -e "${pink}WM:${reset} ${white}${wm}${reset}"
-echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
-echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
-echo -e "${pink}Flatpak packages:${reset} ${white}${flatpaks_count} ${flatpaku_count} ${reset}"
-echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
+[ -z "$os" ] || echo -e "${pink}OS:${reset} ${white}${os}${reset}"
+[ -z "$kernel" ] || echo -e "${pink}Kernel:${reset} ${white}${kernel}${reset}"
+[ -z "$uptime" ] || echo -e "${pink}Uptime:${reset} ${white}${uptime}${reset}"
+[ -z "$host" ] || echo -e "${pink}Host:${reset} ${white}${host}${reset}"
+[ -z "$de" ] || echo -e "${pink}DE:${reset} ${white}${de}${reset}"
+[ -z "$wm" ] || echo -e "${pink}WM:${reset} ${white}${wm}${reset}"
+[ -z "$memory" ] || echo -e "${pink}Memory:${reset} ${white}${memory}${reset}"
+[ -z "$package_source" ] || echo -e "${pink}Packages:${reset} ${white}${package_count} (${package_source})${reset}"
+[ -z "$flatpaks_count" ] || echo -e "${pink}Flatpak packages:${reset} ${white}${flatpaks_count} ${flatpaku_count} ${reset}"
+[ -z "$disk_usage" ] || echo -e "${pink}Live disk reaction:${reset} ${white}${disk_usage}${reset}"
 echo -e "${pink}Funi random quote:${reset} ${white}${random_quote}${reset}"
-echo -e ""
