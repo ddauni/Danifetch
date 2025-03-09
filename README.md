@@ -22,5 +22,5 @@ Then `cd` to *"Danifetch"* and finally run `sudo make install`
 
 
 First, `cd` back into the **Danifetch** directory. \
-Then, simply run `sudo make uninstall`.
+Then, simply run `sudo make uninstall`
 
