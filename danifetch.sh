@@ -49,7 +49,7 @@ elif command -v apk &>/dev/null; then
     package_count="$(apk info | wc -l)"
     package_source="apk (Alpine Linux)"
 elif command -v zypper &>/dev/null; then
-    package_count="$(zypper se --installed-only | wc -)"
+    package_count="$(zypper se --installed-only | wc -l)"
     package_source="zypper"
 elif command -v apt &>/dev/null; then
     package_count="$(dpkg-query -f '.\n' -W | wc -l)"
@@ -63,8 +63,8 @@ else
 fi
 
 if command -v flatpak &>/dev/null; then
-    flatpaks_count="$(flatpak list --system | wc -l)\" (system)\""
-    flatpaku_count="$(flatpak list -u | wc -l)\" (user)\""
+    flatpaks_count="$(flatpak list --system | wc -l) (system)"
+    flatpaku_count="$(flatpak list -u | wc -l) (user)"
 else
     flatpaks_count=""
     flatpaku_count=""
@@ -76,21 +76,21 @@ user="$USER"
 host="$(hostname 2>/dev/null || echo "Hostname not found")"
 memory="$(LANG="C.UTF-8" free -h --si | awk '/^Mem:/ {print $3 "/" $2}')"
 disk_usage="$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')"
-uptime="Up for $(awk '{printf "%02d:%02d:%02d", int(int($1 / 60) / 60), int($1 / 60) % 60, int($1 % 60)}') < /proc/uptime"
+uptime="Up for $(awk '{printf "%02d:%02d:%02d", int($1 / 3600), int($1 / 60) % 60, int($1 % 60)}' < /proc/uptime)"
 
 wm="$XDG_SESSION_DESKTOP"
 case "$wm" in
     "gnome")
-	de="GNOME"
-	wm="Mutter"
-	;;
+        de="GNOME"
+        wm="Mutter"
+        ;;
     "KDE")
-	de="KDE"
-	wm="Kwin"
-	;;
+        de="KDE"
+        wm="Kwin"
+        ;;
     *)
-	de=""
-	;;
+        de=""
+        ;;
 esac
 
 # Quotes
