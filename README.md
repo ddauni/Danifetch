@@ -1,3 +1,5 @@
+the fork was made to fix the script from the commit cc330f8 from the official repo
+
 **Very poorly made bash script thingy that works like a silly fetch like neofetch, fastfetch, etc**
 
 **Feel free to use this if you find it silly!!**
